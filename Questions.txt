@@ -1,0 +1,17 @@
+1) Question 1 in the project provides an example where minimax predicts Pacman will do quite poorly, but he actually often wins the game. Briefly explain why this might occur. (There are a number of possible responses to this question; you need only give one.)
+
+
+2) Describe the evaluation function in Question 5 - what features does it include, how do you combine them. This can be copied/pasted from your comments in the code; it's mainly here to make sure that somewhere, you describe your function! 
+
+
+3) MCTS: Run your algorithm for 15 games with rollouts set to 75. This may take a little time, but not more than a minute or two. How many games does player 1 win? 
+
+4) Repeat (4), except now make MCTS player 2. How many games does player 1 win? (If your answers to (4) and (5) don't make sense to you based on which player should be the smarter player, you probably have an error in your implementation.)
+
+5) Experiment with several values of the UCB exploration constant. Report what values you used and your results for how this affects your MCTS agent's effectiveness. Explain your hypotheses about why you see these results, tying back to what you know about how varying this constant affects the algorithm. Your experimentation should be sufficiently extensive to explore at least some trend in the results.
+
+6) Change the UCB exploration constant back to its original value (.5) and experiment with two MCTS players with different numbers of rollouts relative to one another. For example, you might look at an agent with 10 rollouts and an agent with 20 rollouts, and then look at an agent with 20 rollouts versus an agent with 40 rollouts. As in (6) report what values you used and your results. Explain your hypotheses about why you see these results, tying back to what you know about the algorithm. Your experimentation should be sufficiently extensive to explore at least some trend in the results.
+
+
+
+7) Optional extension: If you did the optional extension at the end of the project, say so here and describe what your agent does.
