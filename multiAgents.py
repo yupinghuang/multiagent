@@ -100,8 +100,11 @@ class MultiAgentSearchAgent(Agent):
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
-      Your minimax agent (question 2)
+      Your minimax agent (question 1)
     """
+    # def __init__(self):
+    #     super(MinimaxAgent, self).__init__(evalFn='scoreEvaluationFunction', depth='2')
+    #     self.currentDepth = 0
 
     def getAction(self, gameState):
         """
@@ -121,7 +124,51 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #TODO: THE LEAF NODE CAN APPEAER IN ANY CASES
+        action,_ = self.minMax(self, gameState, 0, self.index)
+        return action
+
+    #pass in self, currentDepth
+    #return action, score
+    def minMax(self, gameState, currentDepth, currentAgent):
+        # Base case
+        if gameState.isWin() or gameState.isLose():
+            return None, self.evaluationFunction(gameState)
+        if currentDepth==self.depth and currentAgent==gameState.getNumAgents()-1:
+            return None, self.evaluationFunction(gameState)
+
+        # Recursive case
+        legalActions = gameState.getLegalActions(currentAgent)
+        successors = [gameState.generateSuccessor(self.index, action) for action in legalActions]
+        nextDepth = currentDepth
+        if self.index == gameState.getNumAgents()-1:
+            nextDepth += 1
+        nextAgent = (currentAgent + 1) % gameState.getNumAgents()
+        successorScores = [self.minMax(successor, nextDepth, nextAgent)[1] for successor in successors]
+        if currentAgent == 0:
+            index = self.maxIndex(successorScores)
+        else:
+            index = self.minIndex(successorScores)
+
+        return legalActions[index], successorScores[index]
+
+    def minIndex(self, scores):
+        minIndex = 0
+        minScore = scores[0]
+        for i, score in enumerate(scores):
+            if score < minScore:
+                minScore = score
+                minIndex = i
+        return minIndex
+
+    def maxIndex(self, scores):
+        maxIndex = 0
+        maxScore = scores[0]
+        for i, score in enumerate(scores):
+            if score > maxScore:
+                maxScore = score
+                maxIndex = i
+        return maxIndex
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
