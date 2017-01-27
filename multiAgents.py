@@ -125,7 +125,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
         #TODO: THE LEAF NODE CAN APPEAER IN ANY CASES
-        action,_ = self.minMax(self, gameState, 0, self.index)
+        action,_ = self.minMax(gameState, 0, self.index)
         return action
 
     #pass in self, currentDepth
@@ -139,11 +139,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         # Recursive case
         legalActions = gameState.getLegalActions(currentAgent)
-        successors = [gameState.generateSuccessor(self.index, action) for action in legalActions]
+        successors = [gameState.generateSuccessor(currentAgent, action) for action in legalActions]
         nextDepth = currentDepth
-        if self.index == gameState.getNumAgents()-1:
+        nextAgent = currentAgent + 1
+        if currentAgent == gameState.getNumAgents()-1:
             nextDepth += 1
-        nextAgent = (currentAgent + 1) % gameState.getNumAgents()
+            nextAgent = 0
+
         successorScores = [self.minMax(successor, nextDepth, nextAgent)[1] for successor in successors]
         if currentAgent == 0:
             index = self.maxIndex(successorScores)
