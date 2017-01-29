@@ -17,6 +17,8 @@ from game import Directions
 import random, util
 
 from game import Agent
+from search import aStarSearch
+from searchAgents import FoodSearchProblem, foodHeuristic
 
 class ReflexAgent(Agent):
     """
@@ -244,7 +246,43 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        action, score = self.expectiMax(gameState, 0, self.index)
+        return action
+
+    # pass in currentDepth
+    # return action, score
+    def expectiMax(self, gameState, currentDepth, currentAgent):
+        # Base case
+        if gameState.isWin() or gameState.isLose():
+            return None, self.evaluationFunction(gameState)
+        if currentDepth == self.depth and currentAgent == 0:
+            return None, self.evaluationFunction(gameState)
+
+        # Recursive case
+        legalActions = gameState.getLegalActions(currentAgent)
+        successors = [gameState.generateSuccessor(currentAgent, action) for action in legalActions]
+        nextDepth = currentDepth
+        nextAgent = currentAgent + 1
+        if currentAgent == gameState.getNumAgents() - 1:
+            nextDepth += 1
+            nextAgent = 0
+        successorScores = [self.expectiMax(successor, nextDepth, nextAgent)[1] for successor in successors]
+
+        if currentAgent == 0:
+            #pacman
+            index = maxIndex(successorScores)
+            return legalActions[index], successorScores[index]
+        else:
+            # ghost
+            return None, average(successorScores)
+
+def average(scores):
+    count = 0
+    sum = 0.
+    for s in scores:
+        sum += s
+        count += 1
+    return sum/float(count)
 
 def betterEvaluationFunction(currentGameState):
     """
@@ -254,7 +292,8 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    _, endState = aStarSearch(FoodSearchProblem(currentGameState), heuristic=foodHeuristic)
+    return endState.getScore()
 
 # Abbreviation
 better = betterEvaluationFunction
