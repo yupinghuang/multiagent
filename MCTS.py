@@ -10,6 +10,7 @@ you can take a look at game1.py to get a sense of how the game is structured.
 import random
 import argparse
 import game1
+from math import sqrt, log
 
 # You will want to use this import in your code
 import math
@@ -52,21 +53,33 @@ class Node(object):
         to the win percentage for the player at this node (accounting for draws as in 
         the project description).
         """
-        return value
+        return self.value
 
     def updateValue(self, outcome):
         """Updates the value estimate for the node's state.
         outcome: +1 for 1st player win, -1 for 2nd player win, 0 for draw."""
         "*** YOUR CODE HERE ***"
         # NOTE: which outcome is preferred depends on self.state.turn()
-        raise NotImplementedError("You must implement this method")
+        nextTotal = self.getValue() * self.visits
+        if outcome != 0:
+            if outcome == self.state.turn():
+                # win
+                nextTotal += 1.
+            else:
+                # lose
+                nextTotal -= 1.
+        else:
+            nextTotal += 0.5
+        self.visits += 1
+        self.value = nextTotal/self.visits
 
     def UCBWeight(self):
         """Weight from the UCB formula used by parent to select a child.
         This node will be selected by parent with probability proportional
         to its weight."""
         "*** YOUR CODE HERE ***"
-        raise NotImplementedError("You must implement this method")
+        weight = self.value + UCB_CONST * sqrt(log(self.parent.visits)/self.visits)
+        return weight
 
 def MCTS(root, rollouts):
     """Select a move by Monte Carlo tree search.
