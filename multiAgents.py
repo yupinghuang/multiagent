@@ -17,8 +17,8 @@ from game import Directions
 import random, util
 
 from game import Agent
-from search import aStarSearch
-from searchAgents import FoodSearchProblem, foodHeuristic
+from search import aStarSearch, depthFirstSearch
+from searchAgents import ClosestDotSearchAgent, _manhattanDistance
 
 class ReflexAgent(Agent):
     """
@@ -292,8 +292,20 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    _, endState = aStarSearch(FoodSearchProblem(currentGameState), heuristic=foodHeuristic)
-    return endState.getScore()
+    agent = ClosestDotSearchAgent()
+    value = None
+    try:
+        agent.registerInitialState(currentGameState)
+        value = len(agent.actions)
+    except Exception:
+        value = float("inf")
+    ghostPositions = currentGameState.getGhostPositions()
+    pacmanPosition = currentGameState.getPacmanPosition()
+    positionDifferences = [_manhattanDistance(ghostPosition, pacmanPosition) for ghostPosition in ghostPositions]
+    mini = minIndex(positionDifferences)
+    evalFunc = -value + currentGameState.getScore() + 10*positionDifferences[mini]
+    print -value, currentGameState.getScore(), 10*positionDifferences[mini]
+    return evalFunc
 
 # Abbreviation
 better = betterEvaluationFunction

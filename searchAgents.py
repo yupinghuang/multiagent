@@ -81,7 +81,7 @@ class SearchAgent(Agent):
             raise AttributeError, fn + ' is not a search function in search.py.'
         func = getattr(search, fn)
         if 'heuristic' not in func.func_code.co_varnames:
-            print('[SearchAgent] using function ' + fn)
+            # print('[SearchAgent] using function ' + fn)
             self.searchFunction = func
         else:
             if heuristic in globals().keys():
@@ -90,7 +90,7 @@ class SearchAgent(Agent):
                 heur = getattr(search, heuristic)
             else:
                 raise AttributeError, heuristic + ' is not a function in searchAgents.py or search.py.'
-            print('[SearchAgent] using function %s and heuristic %s' % (fn, heuristic))
+            # print('[SearchAgent] using function %s and heuristic %s' % (fn, heuristic))
             # Note: this bit of Python trickery combines the search algorithm and the heuristic
             self.searchFunction = lambda x: func(x, heuristic=heur)
 
@@ -98,7 +98,7 @@ class SearchAgent(Agent):
         if prob not in globals().keys() or not prob.endswith('Problem'):
             raise AttributeError, prob + ' is not a search problem type in SearchAgents.py.'
         self.searchType = globals()[prob]
-        print('[SearchAgent] using problem type ' + prob)
+        # print('[SearchAgent] using problem type ' + prob)
 
     def registerInitialState(self, state):
         """
@@ -552,7 +552,7 @@ class ClosestDotSearchAgent(SearchAgent):
                     raise Exception, 'findPathToClosestDot returned an illegal move: %s!\n%s' % t
                 currentState = currentState.generateSuccessor(0, action)
         self.actionIndex = 0
-        print 'Path found with cost %d.' % len(self.actions)
+        # print 'Path found with cost %d.' % len(self.actions)
 
     def findPathToClosestDot(self, gameState):
         """

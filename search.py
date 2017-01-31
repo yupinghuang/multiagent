@@ -91,7 +91,7 @@ def depthFirstSearch(problem):
     frontier = util.Stack()
     startState = problem.getStartState()
     if problem.isGoalState(startState):
-        return []
+        return [], startState
     frontier.push(Node(startState, []))
     explored = set()
 
@@ -104,7 +104,7 @@ def depthFirstSearch(problem):
                 newpath = list(curNode.partialPath)
                 newpath.append(action)
                 if problem.isGoalState(successor):
-                    return newpath
+                    return newpath, successor
                 else:
                     frontier.push(Node(successor, newpath))
 
