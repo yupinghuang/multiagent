@@ -68,6 +68,8 @@ class Node(object):
             else:
                 # lose
                 nextTotal -= 1.
+        else:
+            nextTotal += 0.5
         self.visits += 1
         self.value = nextTotal/self.visits
 
