@@ -10,8 +10,8 @@ you can take a look at game1.py to get a sense of how the game is structured.
 import random
 import argparse
 import game1
-from math import sqrt, log
-
+from math import sqrt, log, isnan
+random.seed(1)
 # You will want to use this import in your code
 import math
 
@@ -59,15 +59,18 @@ class Node(object):
         """Updates the value estimate for the node's state.
         outcome: +1 for 1st player win, -1 for 2nd player win, 0 for draw."""
         "*** YOUR CODE HERE ***"
-        # NOTE: which outcome is preferred depends on self.state.turn()
+        # NOTE: which outcome is preferred deepends on self.state.turn()
+        if isnan(self.value):
+            self.value = 0
+
         nextTotal = self.getValue() * self.visits
         if outcome != 0:
-            if outcome == self.state.turn():
+            if outcome == self.state.getTurn():
                 # win
                 nextTotal += 1.
             else:
                 # lose
-                nextTotal -= 1.
+                nextTotal += 0.
         else:
             nextTotal += 0.5
         self.visits += 1
@@ -78,7 +81,7 @@ class Node(object):
         This node will be selected by parent with probability proportional
         to its weight."""
         "*** YOUR CODE HERE ***"
-        weight = self.value + UCB_CONST * sqrt(log(self.parent.visits)/self.visits)
+        weight = self.getValue() + UCB_CONST * sqrt(log(self.parent.visits)/self.visits)
         return weight
 
 def MCTS(root, rollouts):
@@ -97,8 +100,91 @@ def MCTS(root, rollouts):
         The legal move from node.state with the highest value estimate
     """
     "*** YOUR CODE HERE ***"
+    if rollouts == 0:
+        return randomMove(root)
+    currentState = root
     # NOTE: you will need several helper functions
-    return randomMove(root) # Replace this line with a correct implementation
+    for i in range(rollouts):
+        # select & expand
+        toSimulate = select(root)
+        print game1.print_board(toSimulate.state)
+        # simulate and get the outcome
+        outcome = simulate(toSimulate)
+        # back-propagate
+        backPropagate(toSimulate, outcome)
+
+    # find the child node with lowest value(least likely to win for the opponent)
+    nextMove = None
+    for move, child in root.children.items():
+        if (nextMove is None) or (child.getValue() < root.children[nextMove].getValue()):
+            nextMove = move
+    return move
+    # return randomMove(root) # Replace this line with a correct implementation
+
+def backPropagate(currentNode, outcome):
+    while currentNode is not None:
+        currentNode.visits += 1
+        currentNode.updateValue(outcome)
+        currentNode = currentNode.parent
+
+def simulate(node):
+    """
+    Simulate a random game from a node.
+    :param node:
+    :return:
+    """
+    currentState = node.state
+    while not currentState.isTerminal():
+        moves = currentState.getMoves()
+        nextInd = random.randint(0, len(moves)-1)
+        currentState = currentState.nextState(moves[nextInd])
+    return currentState.value()
+
+def select(currentNode):
+    """
+    Recursive function to select and expand an unexpanded node in the tree.
+    If a terminal node is encountered, it returns it.
+    :param currentNode:
+    :return: the node to simulate
+    """
+    # check terminal state
+    if currentNode.state.isTerminal():
+        return currentNode
+    nextMove = getUnexpandedMove(currentNode)
+    # print nextMove
+    if nextMove is not None:
+        # find an unexpanded node, add it to the search tree
+        currentNode.addMove(nextMove)
+        return currentNode.children[nextMove]
+
+    # node without unexpanded child, pick one child w/p proportional to weight
+    zConstant = 0.
+    nodes = []
+    weights = []
+    for key, node in currentNode.children.items():
+        nodes.append(node)
+        weight = node.UCBWeight()
+        weights.append(weight)
+        zConstant += weight
+    # print len(nodes), len(weights), zConstant
+    # pick a child w.p. proportional to the proba
+    randomNumber = random.random() * zConstant
+    cumWeightSum = 0.
+    for i, weight in enumerate(weights):
+        cumWeightSum += weight
+        if randomNumber < cumWeightSum:
+            return select(nodes[i])
+    assert False, "should not get here"
+
+def getUnexpandedMove(node):
+    moves = node.state.getMoves()
+    candidates = []
+    for move in moves:
+        if move not in node.children:
+            candidates.append(move)
+    if len(candidates)==0:
+        return None
+    return candidates[random.randint(0, len(candidates)-1)]
 
 
 def parse_args():

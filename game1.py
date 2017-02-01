@@ -58,14 +58,14 @@ class State(object):
             return True
         return self._wins()
     
-    def turn():
+    def getTurn(self):
         """
         Returns +1 for the first player or -1 for the second player.
         This is the player whose turn it is to move in this state.
         """
         return self.turn
     
-    def key():
+    def getKey(self):
         """
         Returns a string representing this state. 
         """
