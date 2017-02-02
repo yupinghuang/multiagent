@@ -118,12 +118,11 @@ def MCTS(root, rollouts):
 
     # find the child node with lowest value(least likely to win for the opponent)
     nextMove = None
-    print game1.show_values(root)
+    # print game1.show_values(root)
     for move, child in root.children.items():
         if (nextMove is None) or (child.getValue() < root.children[nextMove].getValue()):
             nextMove = move
-        print move, child.getValue(), root.children[nextMove].getValue()
-    print nextMove
+    # print nextMove
     return nextMove
 
 def backPropagate(currentNode, outcome):
