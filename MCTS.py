@@ -11,7 +11,7 @@ import random
 import argparse
 import game1
 from math import sqrt, log, isnan
-random.seed(1)
+# random.seed(1)
 # You will want to use this import in your code
 import math
 
@@ -72,6 +72,7 @@ class Node(object):
                 # lose
                 nextTotal += 0.
         else:
+            # draw
             nextTotal += 0.5
         self.visits += 1
         self.value = nextTotal/self.visits
@@ -103,13 +104,13 @@ def MCTS(root, rollouts):
     if rollouts == 0:
         return randomMove(root)
     currentState = root
-    # NOTE: you will need several helper functions
     for i in range(rollouts):
         # select & expand
         toSimulate = select(root)
-        print game1.print_board(toSimulate.state)
+        # print game1.print_board(toSimulate.state)
         # simulate and get the outcome
         outcome = simulate(toSimulate)
+        print outcome
         # back-propagate
         backPropagate(toSimulate, outcome)
 
@@ -119,11 +120,10 @@ def MCTS(root, rollouts):
         if (nextMove is None) or (child.getValue() < root.children[nextMove].getValue()):
             nextMove = move
     return move
-    # return randomMove(root) # Replace this line with a correct implementation
 
 def backPropagate(currentNode, outcome):
     while currentNode is not None:
-        currentNode.visits += 1
+        # updateValue() also updates count
         currentNode.updateValue(outcome)
         currentNode = currentNode.parent
 
@@ -147,14 +147,14 @@ def select(currentNode):
     :param currentNode:
     :return: the node to simulate
     """
-    # check terminal state
+    # Base case 1: check terminal state
     if currentNode.state.isTerminal():
         return currentNode
     nextMove = getUnexpandedMove(currentNode)
-    # print nextMove
+    # Base case 2: has unexpanded child, expand and return the child for simulation
     if nextMove is not None:
         # find an unexpanded node, add it to the search tree
-        currentNode.addMove(nextMove)
+        assert currentNode.addMove(nextMove), 'move existed'
         return currentNode.children[nextMove]
 
     # node without unexpanded child, pick one child w/p proportional to weight
@@ -183,7 +183,9 @@ def getUnexpandedMove(node):
         if move not in node.children:
             candidates.append(move)
     if len(candidates)==0:
+        # no unexpanded child
         return None
+    # randomly choose a child
     return candidates[random.randint(0, len(candidates)-1)]
 
 
