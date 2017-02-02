@@ -11,7 +11,7 @@ import random
 import argparse
 import game1
 from math import sqrt, log, isnan
-random.seed(1)
+# random.seed(1)
 # You will want to use this import in your code
 import math
 
