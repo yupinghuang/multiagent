@@ -11,7 +11,7 @@ import random
 import argparse
 import game1
 from math import sqrt, log, isnan
-# random.seed(1)
+random.seed(1)
 # You will want to use this import in your code
 import math
 
@@ -82,7 +82,9 @@ class Node(object):
         This node will be selected by parent with probability proportional
         to its weight."""
         "*** YOUR CODE HERE ***"
-        weight = self.getValue() + UCB_CONST * sqrt(log(self.parent.visits)/self.visits)
+        # for the node choosing the child; the value of the node should be the lose rate (which is what the
+        # parent node want to maximize
+        weight = 1 - self.getValue() + UCB_CONST * sqrt(log(self.parent.visits)/self.visits)
         return weight
 
 def MCTS(root, rollouts):
@@ -110,16 +112,18 @@ def MCTS(root, rollouts):
         # print game1.print_board(toSimulate.state)
         # simulate and get the outcome
         outcome = simulate(toSimulate)
-        print outcome
         # back-propagate
         backPropagate(toSimulate, outcome)
 
     # find the child node with lowest value(least likely to win for the opponent)
     nextMove = None
+    print game1.show_values(root)
     for move, child in root.children.items():
         if (nextMove is None) or (child.getValue() < root.children[nextMove].getValue()):
             nextMove = move
-    return move
+        print move, child.getValue(), root.children[nextMove].getValue()
+    print nextMove
+    return nextMove
 
 def backPropagate(currentNode, outcome):
     while currentNode is not None:
@@ -130,8 +134,8 @@ def backPropagate(currentNode, outcome):
 def simulate(node):
     """
     Simulate a random game from a node.
-    :param node:
-    :return:
+    :param node: node to simulate
+    :return: the outcome of the simulation
     """
     currentState = node.state
     while not currentState.isTerminal():
@@ -157,7 +161,7 @@ def select(currentNode):
         assert currentNode.addMove(nextMove), 'move existed'
         return currentNode.children[nextMove]
 
-    # node without unexpanded child, pick one child w/p proportional to weight
+    # node without unexpanded child, pick one child w.p. proportional to weight
     zConstant = 0.
     nodes = []
     weights = []
