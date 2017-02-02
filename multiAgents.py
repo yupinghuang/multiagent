@@ -17,8 +17,6 @@ from game import Directions
 import random, util
 
 from game import Agent
-from search import aStarSearch, depthFirstSearch
-from searchAgents import ClosestDotSearchAgent, _manhattanDistance
 
 class ReflexAgent(Agent):
     """
@@ -325,6 +323,14 @@ def average(scores):
         sum += s
         count += 1
     return sum/float(count)
+
+def _manhattanDistance(a, b):
+    """ Manhattan distance between
+    two points a, b represented as tuples
+    """
+    xa, ya = a
+    xb, yb = b
+    return (abs(xa-xb)+abs(ya-yb))
 
 def betterEvaluationFunction(currentGameState):
     """
