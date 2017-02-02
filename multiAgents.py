@@ -132,7 +132,14 @@ class MinimaxAgent(MultiAgentSearchAgent):
     #pass in currentDepth
     #return action, score
     def minMax(self, gameState, currentDepth, currentAgent):
-        # Base case
+        """
+        Recursive function to calculate out the min when the opponent player is playing, max when pacman is playing
+        :param gameState:
+        :param currentDepth:
+        :param currentAgent:
+        :return: tuple of action and score
+        """
+        # Base case at the terminal states
         if gameState.isWin() or gameState.isLose():
             return None, self.evaluationFunction(gameState)
         if currentDepth==self.depth and currentAgent==0:
@@ -156,6 +163,11 @@ class MinimaxAgent(MultiAgentSearchAgent):
         return legalActions[index], successorScores[index]
 
 def minIndex(scores):
+    """
+    Helper function to find the min score index.
+    :param scores: a list of scores
+    :return: index of the min score in scores
+    """
     minIndex = 0
     minScore = scores[0]
     for i, score in enumerate(scores):
@@ -165,6 +177,11 @@ def minIndex(scores):
     return minIndex
 
 def maxIndex(scores):
+    """
+    Helper function to find the max score index.
+    :param scores: a list of scores
+    :return: index of the max score i6n scores
+    """
     maxIndex = 0
     maxScore = scores[0]
     for i, score in enumerate(scores):
@@ -180,7 +197,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
     def getAction(self, gameState):
         """
-          Returns the minimax action using self.depth and self.evaluationFunction
+        Initialize the alpha, beta values for pruning.
+        Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
         alpha = float("-inf")
@@ -192,7 +210,17 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         # return action, score
 
     def alphaBetaPrune(self, alpha, beta, gameState, currentDepth, currentAgent):
-        # Base case
+        """
+        Helper function: Minimax agent with alphaBeta pruning.
+        :param alpha:
+        :param beta:
+        :param gameState:
+        :param currentDepth:
+        :param currentAgent:
+        :return: a tuple of action and score
+        """
+
+        # Base case at terminal states
         if gameState.isWin() or gameState.isLose():
             return None, self.evaluationFunction(gameState)
         if currentDepth == self.depth and currentAgent == 0:
@@ -217,11 +245,13 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             successor = gameState.generateSuccessor(currentAgent,action)
             _, returnedValue = self.alphaBetaPrune(alpha, beta, successor, nextDepth, nextAgent)
             scores.append(returnedValue)
+            # max node
             if inMax:
                 currentValue = max(currentValue,returnedValue)
                 if currentValue > beta:
                     return legalActions[i], currentValue
                 alpha = max(alpha, currentValue)
+            # min node
             else:
                 currentValue = min(currentValue, returnedValue)
                 if currentValue < alpha:
@@ -240,6 +270,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
     def getAction(self, gameState):
         """
+
           Returns the expectimax action using self.depth and self.evaluationFunction
 
           All ghosts should be modeled as choosing uniformly at random from their
@@ -249,10 +280,16 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         action, score = self.expectiMax(gameState, 0, self.index)
         return action
 
-    # pass in currentDepth
-    # return action, score
     def expectiMax(self, gameState, currentDepth, currentAgent):
+        """
+        Hepler Function: use probability to calculate out the utility for expectation and max agents.
+        :param gameState:
+        :param currentDepth:
+        :param currentAgent:
+        :return: a tuple of action and utility
+        """
         # Base case
+        # Use evaluation function to evaluate the utility for the current node
         if gameState.isWin() or gameState.isLose():
             return None, self.evaluationFunction(gameState)
         if currentDepth == self.depth and currentAgent == 0:
@@ -269,14 +306,19 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         successorScores = [self.expectiMax(successor, nextDepth, nextAgent)[1] for successor in successors]
 
         if currentAgent == 0:
-            #pacman
+            #pacman - max agent
             index = maxIndex(successorScores)
             return legalActions[index], successorScores[index]
         else:
-            # ghost
+            # ghost - expectation agent
             return None, average(successorScores)
 
 def average(scores):
+    """
+    Helper function: find the average score from the input.
+    :param scores:
+    :return: average score
+    """
     count = 0
     sum = 0.
     for s in scores:
@@ -286,19 +328,18 @@ def average(scores):
 
 def betterEvaluationFunction(currentGameState):
     """
-      Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
-      evaluation function (question 5).
+    Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
+    evaluation function (question 5).
 
-      DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION:
+    The evaluation function here deals with 2 situations: when ghost is close (within 3 steps) or far
+    1.when ghost is far away, the evaluation doesn't care about where the ghost is but only evaluates the closest food
+    (subtracting the distance from the closest food. The further the closest food is, the smaller evaluation is.)
+    2.when ghost is close, the evaluation considers both the ghost distance and also the closest food.
+    (substracting both distances from closest food and closest ghost from terminal utility, therefore, the further
+    the closest food is, or the closer the closest ghost is, the smaller evaluation is)
     """
     "*** YOUR CODE HERE ***"
-    agent = ClosestDotSearchAgent()
-    value = None
-    try:
-        agent.registerInitialState(currentGameState)
-        value = len(agent.actions)
-    except Exception:
-        value = float("inf")
     ghostPositions = currentGameState.getGhostPositions()
     pacmanPosition = currentGameState.getPacmanPosition()
     foodGrid = currentGameState.getFood()
@@ -312,15 +353,6 @@ def betterEvaluationFunction(currentGameState):
     else:
         mini2 = minIndex(foodDifferences)
         foodEval = foodDifferences[mini2]
-
-    '''
-    The evaluation function here deals with 2 situations: when ghost is close (within 3 steps) or far
-    1.when ghost is far away, the evaluation doesn't care about where the ghost is but only evaluates the closest food
-    (subtracting the distance from the closest food. The further the closest food is, the smaller evaluation is.)
-    2.when ghost is close, the evaluation considers both the ghost distance and also the closest food.
-    (substracting both distances from closest food and closest ghost from terminal utility, therefore, the further
-    the closest food is, or the closer the closest ghost is, the smaller evaluation is)
-    '''
 
     if positionDifferences[mini] <= 3:
         evalFunc = currentGameState.getScore() - positionDifferences[mini] - foodEval

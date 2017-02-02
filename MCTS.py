@@ -69,7 +69,6 @@ class Node(object):
             if outcome == self.state.getTurn():
                 # win
                 nextTotal += 1.
-                # TODO: CHECK WHICH PLAYER THAT IS
             else:
                 # lose
                 nextTotal += 0.
@@ -84,10 +83,9 @@ class Node(object):
         This node will be selected by parent with probability proportional
         to its weight."""
         "*** YOUR CODE HERE ***"
+        global UCB_CONST
         # for the node choosing the child; the value of the node should be the lose rate (which is what the
         # parent node want to maximize
-        global UCB_CONST
-        # print UCB_CONST
         weight = 1 - self.getValue() + UCB_CONST * sqrt(log(self.parent.visits)/self.visits)
         return weight
 
@@ -109,11 +107,9 @@ def MCTS(root, rollouts):
     "*** YOUR CODE HERE ***"
     if rollouts == 0:
         return randomMove(root)
-    currentState = root
     for i in range(rollouts):
         # select & expand
         toSimulate = select(root)
-        # print game1.print_board(toSimulate.state)
         # simulate and get the outcome
         outcome = simulate(toSimulate)
         # back-propagate
@@ -121,11 +117,9 @@ def MCTS(root, rollouts):
 
     # find the child node with lowest value(least likely to win for the opponent)
     nextMove = None
-    # print game1.show_values(root)
     for move, child in root.children.items():
         if (nextMove is None) or (child.getValue() < root.children[nextMove].getValue()):
             nextMove = move
-    # print nextMove
     return nextMove
 
 def backPropagate(currentNode, outcome):
@@ -152,7 +146,7 @@ def select(currentNode):
     Recursive function to select and expand an unexpanded node in the tree.
     If a terminal node is encountered, it returns it.
     :param currentNode:
-    :return: the node to simulate
+    :return: the node to simulate for the next step in MCTS.
     """
     # Base case 1: check terminal state
     if currentNode.state.isTerminal():
@@ -161,7 +155,7 @@ def select(currentNode):
     # Base case 2: has unexpanded child, expand and return the child for simulation
     if nextMove is not None:
         # find an unexpanded node, add it to the search tree
-        assert currentNode.addMove(nextMove), 'move existed'
+        currentNode.addMove(nextMove)
         return currentNode.children[nextMove]
 
     # node without unexpanded child, pick one child w.p. proportional to weight
@@ -173,7 +167,7 @@ def select(currentNode):
         weight = node.UCBWeight()
         weights.append(weight)
         zConstant += weight
-    # print len(nodes), len(weights), zConstant
+
     # pick a child w.p. proportional to the weight
     randomNumber = random.random() * zConstant
     cumWeightSum = 0.
@@ -184,6 +178,12 @@ def select(currentNode):
     assert False, "should not get here"
 
 def getUnexpandedMove(node):
+    """
+    Pick an unexpanded move at random for a node.
+    If no unexpanded move exists, return None.
+    :param node: the node to check/expand
+    :return: unexpanded move if it exists. None if it does not.
+    """
     moves = node.state.getMoves()
     candidates = []
     for move in moves:

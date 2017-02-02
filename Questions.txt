@@ -36,6 +36,13 @@ rollouts 20, 500 games
 100.	437
 1000.	446
 
+We did multiple measurements on a few of those; the uncertainty of games win count is around 5. Taking this into account, we can
+see that the MCTS agent is the most effective when the ucb constant is between 0.5 to 0.8. Since the UCB constant specifies the
+trade-off between exploitation and exploration. The most effective value lies somewhere between 0.5 and 0.8 with which exploitation
+and exploration are balanced. If the UCB constant is too small, then it is doing a bit too much exploitation, and if it is too
+large then it is doing too much exploration. If the rollouts is relatively small (20) then those two extremes lead to lower
+efficiencies. But if the rollouts is large, then in a simple game like this the ucb constant does not really matter since enough
+of the tree is explored anyway.
 
 6) Change the UCB exploration constant back to its original value (.5) and experiment with two MCTS players with different numbers of rollouts relative to one another. For example, you might look at an agent with 10 rollouts and an agent with 20 rollouts, and then look at an agent with 20 rollouts versus an agent with 40 rollouts. As in (6) report what values you used and your results. Explain your hypotheses about why you see these results, tying back to what you know about the algorithm. Your experimentation should be sufficiently extensive to explore at least some trend in the results.
 (100 games)
