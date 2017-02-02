@@ -304,17 +304,6 @@ def betterEvaluationFunction(currentGameState):
     foodGrid = currentGameState.getFood()
     foodList = foodGrid.asList()
 
-    # closestFoodX, closestFoodY = pacmanPosition
-    # closestDistance = 0
-    # for foodPosition in foodList:
-    #     currFoodX, currFoodY = foodPosition
-    #     currDistance = (abs(currFoodX-closestFoodX)+abs(currFoodY-closestFoodY))
-    #     if currDistance < closestDistance:
-    #         closestFoodX, closestFoodY = pacmanPosition
-    #         closestDistance = currDistance
-    #
-    # heuristicFoodValue = (_manhattanDistance(pacmanPosition, (closestFoodX, closestFoodY)))
-
     foodDifferences = [_manhattanDistance(foodPosition, pacmanPosition) for foodPosition in foodList]
     positionDifferences = [_manhattanDistance(ghostPosition, pacmanPosition) for ghostPosition in ghostPositions]
     mini = minIndex(positionDifferences)
@@ -323,8 +312,21 @@ def betterEvaluationFunction(currentGameState):
     else:
         mini2 = minIndex(foodDifferences)
         foodEval = foodDifferences[mini2]
-    evalFunc = currentGameState.getScore() + positionDifferences[mini] - foodEval
-    # print -value, currentGameState.getScore(), 10*positionDifferences[mini]
+
+    '''
+    The evaluation function here deals with 2 situations: when ghost is close (within 3 steps) or far
+    1.when ghost is far away, the evaluation doesn't care about where the ghost is but only evaluates the closest food
+    (subtracting the distance from the closest food. The further the closest food is, the smaller evaluation is.)
+    2.when ghost is close, the evaluation considers both the ghost distance and also the closest food.
+    (substracting both distances from closest food and closest ghost from terminal utility, therefore, the further
+    the closest food is, or the closer the closest ghost is, the smaller evaluation is)
+    '''
+
+    if positionDifferences[mini] <= 3:
+        evalFunc = currentGameState.getScore() - positionDifferences[mini] - foodEval
+    else:
+        evalFunc = currentGameState.getScore() - foodEval
+
     return evalFunc
 
 # Abbreviation
