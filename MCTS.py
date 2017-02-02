@@ -11,7 +11,7 @@ import random
 import argparse
 import game1
 from math import sqrt, log, isnan
-random.seed(1)
+# random.seed(1)
 # You will want to use this import in your code
 import math
 
@@ -19,6 +19,7 @@ import math
 DISPLAY_BOARDS = False 
 
 # UCB_CONST value - you should experiment with different values
+global UCB_CONST
 UCB_CONST = .5
 
 
@@ -85,6 +86,8 @@ class Node(object):
         "*** YOUR CODE HERE ***"
         # for the node choosing the child; the value of the node should be the lose rate (which is what the
         # parent node want to maximize
+        global UCB_CONST
+        # print UCB_CONST
         weight = 1 - self.getValue() + UCB_CONST * sqrt(log(self.parent.visits)/self.visits)
         return weight
 
@@ -214,6 +217,7 @@ def parse_args():
     args = p.parse_args()
     if args.displayBoard:
         DISPLAY_BOARDS = True
+    global UCB_CONST
     UCB_CONST = args.ucbConst
     return args
 
