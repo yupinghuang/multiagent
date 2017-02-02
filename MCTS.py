@@ -59,7 +59,7 @@ class Node(object):
         """Updates the value estimate for the node's state.
         outcome: +1 for 1st player win, -1 for 2nd player win, 0 for draw."""
         "*** YOUR CODE HERE ***"
-        # NOTE: which outcome is preferred deepends on self.state.turn()
+        # NOTE: which outcome is preferred depends on self.state.turn()
         if isnan(self.value):
             self.value = 0
 
@@ -68,6 +68,7 @@ class Node(object):
             if outcome == self.state.getTurn():
                 # win
                 nextTotal += 1.
+                # TODO: CHECK WHICH PLAYER THAT IS
             else:
                 # lose
                 nextTotal += 0.
@@ -171,12 +172,12 @@ def select(currentNode):
         weights.append(weight)
         zConstant += weight
     # print len(nodes), len(weights), zConstant
-    # pick a child w.p. proportional to the proba
+    # pick a child w.p. proportional to the weight
     randomNumber = random.random() * zConstant
     cumWeightSum = 0.
     for i, weight in enumerate(weights):
         cumWeightSum += weight
-        if randomNumber < cumWeightSum:
+        if randomNumber <= cumWeightSum:
             return select(nodes[i])
     assert False, "should not get here"
 
